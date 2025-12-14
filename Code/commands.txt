@@ -1,0 +1,22 @@
+cd "/Users/jayasingh/Downloads/174 Project"
+
+# activate correct environment
+source .venv310/bin/activate
+
+# install extra libraries once- This is optional
+pip install pandas scikit-learn matplotlib seaborn
+
+# 1) training models from SignMNIST
+python train_asl.py
+
+# 2) basic test accuracy
+python test_asl.py
+
+# 3) extra evaluation: confusion matrix + per-class accuracy
+python extra_eval_asl.py
+
+# 4) plot and save result charts
+python plot_asl_results.py
+
+# 5) run enhanced live webcam demo
+python webcam_demo.py

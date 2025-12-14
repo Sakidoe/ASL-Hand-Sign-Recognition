@@ -1,0 +1,140 @@
+***************************************************************************************************************************************
+# ASL Letter Recognition with CNN and Webcam
+
+We built an end‑to‑end American Sign Language (ASL) alphabet recognizer using a small CNN trained on the Sign Language MNIST
+dataset and a real‑time webcam demo. The goal is to go from offline dataset training and evaluation all the way to an interactive
+system that can recognize letters from a live camera feed.
+*******************************************************************************************************************************************
+
+# Project Files
+
+- train_asl.py
+  - Trains a baseline MLP and a SimpleCNN on sign_mnist_train.csv.
+  - Saves two models:
+    - asl_baseline.pth – baseline fully connected network.
+    - asl_cnn.pth – main CNN used for testing and the webcam demo.
+
+- test_asl.py
+  - Loads asl_cnn.pth and evaluates it on sign_mnist_test.csv.
+  - Prints overall test accuracy and shows sample predictions (true vs predicted letters).
+
+- extra_eval_asl.py
+  - Performs “extra” evaluation on the SignMNIST test set.
+  - Computes:
+    - Overall accuracy.
+    - Confusion matrix over all label indices (saved as confusion_matrix.csv).
+    - Per‑class accuracy mapped to ASL letters (saved as per_class_accuracy.csv).
+  - Prints the five hardest letters for the model, which is useful for error analysis.
+
+- plot_asl_results.py
+  - Reads per_class_accuracy.csv and confusion_matrix.csv.
+  - Produces:
+    - per_class_accuracy.png – bar chart of accuracy for each letter.
+    - confusion_matrix.png – confusion matrix heatmap.
+  - Both plots are shown on screen and saved as PNG files for the report or slides.
+
+- webcam_demo.py
+  - Real‑time ASL webcam demo using the trained CNN (asl_cnn.pth).
+  - Steps per frame:
+    - Capture from the webcam with OpenCV.
+    - Center‑crop → grayscale → blur → histogram equalization → Otsu threshold → invert.
+    - Crop around the largest contour (hand region) and resize to 28×28 to match SignMNIST.
+    - Run the SimpleCNN to predict the letter and confidence.
+  - Extra features:
+    - Top‑k probability list for the most likely letters.
+    - Temporal smoothing over a short window of predictions.
+    - Letter buffer that builds a “word” as we sign letters.
+    - Per‑letter counts for this session.
+    - Optional speech output using pyttsx3 (toggle with the `s` key).
+    - Logging of low‑confidence predictions to asl_low_conf_log.csv.
+    - Saving the final buffered letters to asl_buffer_output.txt on exit.
+
+- sign_mnist_train.csv, sign_mnist_test.csv
+  - Kaggle Sign Language MNIST dataset in CSV format.
+  - Column 0: numeric label. Columns 1–784: flattened 28×28 grayscale pixels.
+
+- asl_baseline.pth, asl_cnn.pth
+  - Saved PyTorch model weights produced by train_asl.py.
+
+*******************************************************************************************************************************************
+## Environment Setup
+We run everything in a Python 3.10 virtual environment so that all required packages (especially OpenCV and related wheels) install cleanly.
+1. From the project folder:
+2. Install libraries:
+
+*******************************************************************************************************************************************
+## Running the Pipeline from Scratch
+Always activate the environment first:
+*****************************************************************************************************************************************
+
+1. Train models (optional if .pth files already exist)**
+- Trains the baseline MLP and the CNN on sign_mnist_train.csv.
+- Saves asl_baseline.pth and asl_cnn.pth.
+
+*****************************************************************************************************************************************
+
+2. Basic test evaluation
+- Loads asl_cnn.pth.
+- Evaluates on sign_mnist_test.csv.
+- Prints overall accuracy and the first 10 predictions with letters.
+
+*****************************************************************************************************************************************
+
+3. Extra evaluation (confusion matrix + per‑class accuracy)
+- Prints overall test accuracy (around 96% in our runs).
+- Prints accuracy for each ASL letter present in the dataset.
+- Saves:
+  - confusion_matrix.csv
+  - per_class_accuracy.csv
+
+*****************************************************************************************************************************************
+
+4. Plot and save result charts
+- Displays:
+  - Bar chart of per‑class (per‑letter) accuracy.
+  - Confusion matrix heatmap.
+- Saves:
+  - per_class_accuracy.png
+  - confusion_matrix.png
+*****************************************************************************************************************************************
+
+5. Run the real‑time webcam demo
+- Main window (“ASL Webcam Demo”):
+  - Shows the live camera feed.
+  - Displays Pred: <letter> (<confidence>) at the top.
+  - Draws a blue square indicating the central crop used for preprocessing.
+  - Shows Buffer: <letters> at the bottom, which accumulates accepted letters.
+  - On the right, displays the top‑k probabilities for the most likely letters.
+  - On the left, shows per‑letter counts for this session.
+
+- Second window (“Preprocessed 28x28”):
+  - Shows the 28×28 black‑and‑white image that actually goes into the CNN.
+- Key controls:
+  - `q` – quit the demo.
+  - `c` – clear the letter buffer and reset per‑letter counts.
+  - `s` – toggle text‑to‑speech on or off (if enabled, we speak each newly accepted letter).
+- On exit:
+  - The buffer is written to `asl_buffer_output.txt`.
+  - Low‑confidence predictions are stored in `asl_low_conf_log.csv` for later analysis.
+
+***************************************************************************************************************************************
+
+## How to Use These Results in a Report
+- Use `per_class_accuracy.png` to discuss which letters are easy vs hard and why.
+- Use `confusion_matrix.png` to show which letters are confused with each other.
+- Refer to `extra_eval_asl.py` for listing weakest letters and proposing future improvements.
+- Demonstrate `webcam_demo.py` live or with screenshots to show real‑time ASL recognition and the extra features (buffer, speech,
+-logging, and probability bars).
+
+*******************************************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
